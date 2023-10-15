@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68357003064",
+    "project_id": "parkingmanagement-da038",
+    "storage_bucket": "parkingmanagement-da038.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68357003064:android:6a43f7882c341a209253cd",
+        "android_client_info": {
+          "package_name": "com.example.parking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8-UC3tTS0h6lX5ZrxdXChx3UgtHfd-xo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
