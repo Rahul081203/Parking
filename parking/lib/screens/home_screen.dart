@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'report_illegal.dart';
 import 'search_screen.dart'; // Import your SearchScreen file
 import 'list_screen.dart';   // Import your ListScreen file
 import 'map_screen.dart';    // Import your MapScreen file
 
 class HomeScreen extends StatefulWidget {
+  final String userEmail; // Add a parameter to accept the user's email
+
+  HomeScreen({required this.userEmail}); // Constructor to accept user's email
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState(userEmail: userEmail);
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final String userEmail; // Store the user's email
   int _selectedIndex = 0;
+
+  _HomeScreenState({required this.userEmail}); // Constructor to accept user's email
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      print("************************************************ User Email: $userEmail");
     });
   }
 
@@ -63,6 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _buildScreenContent(),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.grey[200],
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
@@ -76,6 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.map),
             label: 'Map',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera),
+            label: 'Report',
+          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -86,11 +101,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildScreenContent() {
     switch (_selectedIndex) {
       case 0:
-        return SearchScreen(); // Use your SearchScreen here
+        return SearchScreen(); // SearchScreen here
       case 1:
-        return ListScreen();   // Use your ListScreen here
+        return ListScreen();   // ListScreen here
       case 2:
-        return MapScreen();    // Use your MapScreen here
+        return MapScreen();    // MapScreen here
+      case 3:
+        return ReportIllegalScreen(userEmail: userEmail); // ReportScreen here
       default:
         return Center(
           child: Text('Not implemented'),

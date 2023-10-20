@@ -37,6 +37,14 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.17.0
   cloud_firestore: ^4.9.3
+  firebase_auth: ^4.11.0
+  camera: ^0.10.5+5
+  permission_handler: ^11.0.1
+  path_provider: ^2.1.1
+  path_provider_android: ^2.2.0
+  path_provider_platform_interface: ^2.1.1
+  geolocator: ^9.0.2
+  firebase_storage: ^11.3.0
 
 dev_dependencies:
   flutter_test:

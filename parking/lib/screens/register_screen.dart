@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController firstNameController = TextEditingController();
@@ -7,68 +7,69 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController reenterPasswordController = TextEditingController();
+  final TextEditingController aadharController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   Future<void> _register(BuildContext context) async {
-    if (passwordController.text == reenterPasswordController.text) {
-      final CollectionReference users = FirebaseFirestore.instance.collection('users');
+    if (_formKey.currentState!.validate()) {
+      if (passwordController.text == reenterPasswordController.text) {
+        try {
+          final UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text,
+            password: passwordController.text,
+          );
 
-      // Add user data to Firestore
-      users.add({
-        'First Name': firstNameController.text,
-        'Last Name': lastNameController.text,
-        'Email ID': emailController.text,
-        'Password': passwordController.text,
-      }).then((value) {
-        // Registration successful
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Registration Successful'),
-            content: Text('You have been registered successfully.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }).catchError((error) {
-        // Handle errors, e.g., registration failed
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Registration Failed'),
-            content: Text('An error occurred while registering.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      });
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Password Mismatch'),
-          content: Text('Passwords do not match. Please re-enter.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+          // Registration successful
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Registration Successful'),
+              content: Text('You have been registered successfully.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
             ),
-          ],
-        )
-      );
+          );
+        } catch (e) {
+          // Handle registration errors
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Registration Failed'),
+              content: Text('An error occurred while registering: $e'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Password Mismatch'),
+            content: Text('Passwords do not match. Please re-enter.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -78,54 +79,96 @@ class RegisterScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Register'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: firstNameController,
-              decoration: InputDecoration(
-                labelText: 'First Name',
-                border: OutlineInputBorder(),
-              ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  controller: firstNameController,
+                  decoration: InputDecoration(
+                    labelText: 'First Name',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your first name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: lastNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Last Name',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your last name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: reenterPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Re-enter Password',
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please re-enter your password';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: aadharController,
+                  decoration: InputDecoration(
+                    labelText: 'Aadhar No.',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your Aadhar number';
+                    }
+                    return null;
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _register(context);
+                  },
+                  child: Text('Register'),
+                ),
+              ],
             ),
-            TextField(
-              controller: lastNameController,
-              decoration: InputDecoration(
-                labelText: 'Last Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            TextField(
-              controller: reenterPasswordController,
-              decoration: InputDecoration(
-                labelText: 'Re-enter Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _register(context);
-              },
-              child: Text('Register'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,81 +1,110 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart'; // Import your RegisterScreen file
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final Function(String) onLoginSuccess; // Define the callback function
+
+  LoginScreen({Key? key, required this.onLoginSuccess}) : super(key: key);
 
   Future<void> _login(BuildContext context) async {
-    // Authentication logic here (for testing purposes, you can use hardcoded credentials).
+    final email = emailController.text;
+    final password = passwordController.text;
 
-    // If successful login:
-    Navigator.pushNamed(context, '/home');
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    // If registration is clicked, navigate to the RegisterScreen:
-    // Navigator.pushNamed(context, '/register');
+      if (userCredential.user != null) {
+        onLoginSuccess(email); // Call the callback on successful login
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Login Failed'),
+            content: Text('Invalid email or password.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Login Failed'),
+          content: Text('An error occurred while logging in: $e'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This will hide the back button
-        title: Text('Login or Register'),
+        automaticallyImplyLeading: false,
+        title: Text('ParkPro'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _login(context);
-                  },
-                  child: Text('Login'),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigate to the RegisterScreen when Register is clicked
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  child: Text('Register'),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
                 ),
-              ],
-            ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+                obscureText: true,
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _login(context);
+                },
+                child: Text('Login'),
               ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _login(context);
-              },
-              child: Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to the Password Reset Screen
-                Navigator.pushNamed(context, '/password_reset');
-              },
-              child: Text('Forgot Password?'),
-            ),
-          ],
+              SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text("Don't have an account? Register"),
+              ),
+            ],
+          ),
         ),
       ),
     );
